@@ -140,10 +140,8 @@ All methods in GDriveFS throw errors when operations fail. It's recommended to u
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please feel free to submit a [Pull Request](https://github.com/wo6zz/gdrive-fs/pulls).
 
 ## License
 
-This project is licensed under the MIT License.
-
-Would you like me to explain or elaborate on any part of this README?
+This project is licensed under the [MIT](./LICENSE) License.
