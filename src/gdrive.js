@@ -4,7 +4,7 @@ import stream from 'stream';
 import { promisify } from 'util';
 import path from 'path';
 import Node from './node.js';
-import { MimeTypes } from 'types.js';
+import { MimeTypes } from './types.js';
 
 const pipeline = promisify(stream.pipeline);
 
