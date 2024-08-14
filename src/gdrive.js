@@ -374,7 +374,7 @@ export default class GDriveFS {
     let currentNode = this.#rootNode;
 
     for (const part of parts) {
-      const childNode = currentNode.children.find(child => child.name === part);
+      const childNode = currentNode.children?.find(child => child.name === part);
       if (!childNode) {
         const res = await this.#drive.files.list({
           q: `'${currentNode.id}' in parents and name = '${part}' and trashed = false`,
