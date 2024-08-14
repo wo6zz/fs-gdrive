@@ -1,9 +1,9 @@
 {
   "name": "gdrive-fs",
   "version": "1.0.0",
-  "description": "A Google Drive file system interface",
-  "type": "module",
+  "description": "A file system-like interface for Google Drive operations in Node.js",
   "main": "src/index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,8 +11,10 @@
     "google",
     "drive",
     "google drive",
+    "gdrive",
     "fs",
-    "file system"
+    "file system",
+    "gdrive-fs"
   ],
   "author": "Ahmed (wo6zz)",
   "license": "MIT",
@@ -26,5 +28,8 @@
   "homepage": "https://github.com/wo6zz/gdrive-fs#readme",
   "dependencies": {
     "@googleapis/drive": "^8.11.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }
