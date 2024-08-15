@@ -2,6 +2,15 @@
   <h1>Fs GDrive</h1>
 </div>
 
+---
+
+[![npm version](https://img.shields.io/npm/v/fs-gdrive)](https://www.npmjs.com/package/fs-gdrive)
+[![npm downloads](https://img.shields.io/npm/dm/fs-gdrive)](https://www.npmjs.com/package/fs-gdrive)
+[![GitHub stars](https://img.shields.io/github/stars/wo6zz/fs-gdrive?style=social)](https://github.com/wo6zz/fs-gdrive/stargazers)
+[![License](https://img.shields.io/github/license/wo6zz/fs-gdrive)](https://github.com/wo6zz/fs-gdrive/blob/main/LICENSE)
+
+---
+
 fs-gdrive, is a Node.js package that provides a file system-like interface for interacting with Google Drive. It simplifies operations such as reading, writing, and managing files and directories in Google Drive, making it easier to integrate Google Drive functionality into your Node.js applications.
 
 ## Features
