@@ -8,13 +8,13 @@ import { MimeTypes } from './types.js';
 
 const pipeline = promisify(stream.pipeline);
 
-export default class GDriveFS {
+export default class GDrive {
   #drive;
   #options;
   #rootNode;
 
   /**
-   * Constructs a new GDriveFS instance.
+   * Constructs a new GDrive instance.
    * @param {Object} options - Configuration options.
    * @param {string} options.folderId - The root folder ID in Google Drive.
    * @param {Object} options.auth - Authentication details for Google Drive.
