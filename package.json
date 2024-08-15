@@ -31,5 +31,11 @@
   },
   "engines": {
     "node": ">=16.0.0"
-  }
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ]
 }
