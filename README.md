@@ -1,6 +1,8 @@
-# GDriveFS
+<div align="center">
+  <h1>Fs GDrive</h1>
+</div>
 
-GDriveFS is a Node.js package that provides a file system-like interface for interacting with Google Drive. It simplifies operations such as reading, writing, and managing files and directories in Google Drive, making it easier to integrate Google Drive functionality into your Node.js applications.
+fs-gdrive, is a Node.js package that provides a file system-like interface for interacting with Google Drive. It simplifies operations such as reading, writing, and managing files and directories in Google Drive, making it easier to integrate Google Drive functionality into your Node.js applications.
 
 ## Features
 
@@ -17,7 +19,7 @@ GDriveFS is a Node.js package that provides a file system-like interface for int
 ## Installation
 
 ```bash
-npm install gdrivefs
+npm install fs-gdrive
 ```
 
 ## Usage
@@ -25,13 +27,13 @@ npm install gdrivefs
 First, import the GDriveFS class:
 
 ```javascript
-import GDriveFS from 'gdrivefs';
+import fsGDrive from 'fs-gdrive';
 ```
 
 Then, create an instance of GDriveFS with your Google Drive authentication details:
 
 ```javascript
-const gdriveFS = new GDriveFS({
+const fsGDrive = new GDrive({
   folderId: 'your-root-folder-id',
   auth: {
     email: 'your-service-account-email@example.com',
@@ -43,35 +45,35 @@ const gdriveFS = new GDriveFS({
 Connect to Google Drive:
 
 ```javascript
-await gdriveFS.connect();
+await fsGDrive.connect();
 ```
 
 Now you can use various methods to interact with Google Drive:
 
 ```javascript
 // Read directory contents
-const files = await gdriveFS.readdir('/path/to/directory');
+const files = await fsGDrive.readdir('/path/to/directory');
 
 // Create a directory
-await gdriveFS.mkdir('/path/to/new/directory');
+await fsGDrive.mkdir('/path/to/new/directory');
 
 // Write a file
-await gdriveFS.writeFile('/path/to/file.txt', 'File content');
+await fsGDrive.writeFile('/path/to/file.txt', 'File content');
 
 // Read a file
-const content = await gdriveFS.readFile('/path/to/file.txt');
+const content = await fsGDrive.readFile('/path/to/file.txt');
 
 // Delete a file or directory
-await gdriveFS.unlink('/path/to/file-or-directory');
+await fsGDrive.unlink('/path/to/file-or-directory');
 
 // Rename or move a file or directory
-await gdriveFS.rename('/old/path', '/new/path');
+await fsGDrive.rename('/old/path', '/new/path');
 
 // Get file or directory stats
-const stats = await gdriveFS.stat('/path/to/file-or-directory');
+const stats = await fsGDrive.stat('/path/to/file-or-directory');
 
 // Search for files
-const searchResults = await gdriveFS.search({
+const searchResults = await fsGDrive.search({
   name: 'example',
   mimeType: 'text/plain',
   minSize: 1000,
@@ -81,14 +83,14 @@ const searchResults = await gdriveFS.search({
 });
 
 // Copy a file
-await gdriveFS.copy('/path/to/source/file.txt', '/path/to/destination/file.txt');
+await fsGDrive.copy('/path/to/source/file.txt', '/path/to/destination/file.txt');
 ```
 
 ## API Reference
 
 ### `constructor(options)`
 
-Creates a new GDriveFS instance.
+Creates a new GDrive instance.
 
 - `options.folderId`: The root folder ID in Google Drive.
 - `options.auth.email`: Service account email.
@@ -136,7 +138,7 @@ Copies a file from one location to another.
 
 ## Error Handling
 
-All methods in GDriveFS throw errors when operations fail. It's recommended to use try-catch blocks or .catch() methods when using these functions to handle potential errors.
+All methods in GDrive throw errors when operations fail. It's recommended to use try-catch blocks or .catch() methods when using these functions to handle potential errors.
 
 ## Contributing
 
