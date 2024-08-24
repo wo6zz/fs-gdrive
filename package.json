@@ -2,10 +2,19 @@
   "name": "fs-gdrive",
   "version": "1.0.0",
   "description": "A file system-like interface for Google Drive operations in Node.js",
-  "main": "src/index.js",
+  "main": "dist/index.cjs",
   "type": "module",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
   "scripts": {
-    "test": "node tests"
+    "build": "rimraf dist && rollup -c",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "google",
@@ -20,7 +29,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/wo6zz/fs-gdrive.git"
+    "url": "git+https://github.com/wo6zz/fs-gdrive.git"
   },
   "bugs": {
     "url": "https://github.com/wo6zz/fs-gdrive/issues"
@@ -33,9 +42,20 @@
     "node": ">=16.0.0"
   },
   "files": [
-    "src",
+    "dist",
     "README.md",
     "LICENSE",
     "package.json"
-  ]
+  ],
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/node": "^22.4.0",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.20.0",
+    "tslib": "^2.6.3",
+    "typescript": "^5.5.4"
+  }
 }

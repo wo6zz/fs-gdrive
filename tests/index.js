@@ -1,7 +1,8 @@
-import GDriveFS from "gdrive-fs";
+const {GDrive} = require('fs-gdrive');
+require('dotenv').config();
 
-const gdrive = new GDriveFS({
-  folderId: process.env.GD_FOLDER_ID, // folderId
+const gdrive = new GDrive({
+  root: process.env.GD_FOLDER_ID, // folderId
   auth: {
     email: process.env.GD_EMAIL, // JWT email
     privateKey: process.env.GD_PRIVATE_KEY.replace(/\\n/g, '\n'), // JWT private key
