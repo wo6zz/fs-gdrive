@@ -2,8 +2,6 @@
   <h1>Fs GDrive</h1>
 </div>
 
----
-
 [![npm version](https://img.shields.io/npm/v/fs-gdrive)](https://www.npmjs.com/package/fs-gdrive)
 [![npm downloads](https://img.shields.io/npm/dm/fs-gdrive)](https://www.npmjs.com/package/fs-gdrive)
 [![GitHub stars](https://img.shields.io/github/stars/wo6zz/fs-gdrive?style=social)](https://github.com/wo6zz/fs-gdrive/stargazers)
@@ -33,10 +31,12 @@ npm install fs-gdrive
 
 ## Usage
 
-First, import the GDriveFS class:
+First, import the `GDrive` class:
 
 ```javascript
-import fsGDrive from 'fs-gdrive';
+import { GDrive } from 'fs-gdrive'; // esm
+// OR
+const { GDrive } = require('fs-gdrive'); // cjs
 ```
 
 Then, create an instance of GDriveFS with your Google Drive authentication details:
