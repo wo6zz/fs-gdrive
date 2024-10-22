@@ -5,7 +5,8 @@ import { DriveMimeTypes } from '../typings/enum';
 import { MimeType } from '../typings/type';
 
 export class GDrive {
-  public static DRIVE_VERSION: string = 'v3';
+  public static readonly DRIVE_VERSION: string = 'v3';
+  private static readonly CONNECTION_TIMEOUT: number = 3 * 60 * 60 * 1000; // 3 hours
 
   #drive: drive_v3.Drive | null = null;
   #options: GDriveOptions;
@@ -30,12 +31,17 @@ export class GDrive {
 
   private async autoConnect(): Promise<void> {
     const currentTime = new Date();
-    if (!this.isConnected || (this.#lastConnect && currentTime.getTime() - this.#lastConnect.getTime() > 3 * 60 * 60 * 1000)) {
+    if (!this.isConnected || 
+        (this.#lastConnect && currentTime.getTime() - this.#lastConnect.getTime() > GDrive.CONNECTION_TIMEOUT)) {
       await this.connect();
     }
   }
-
+  
   public async connect(): Promise<drive_v3.Drive> {
+    if (!this.#options.auth?.email || !this.#options.auth?.privateKey) {
+      throw new Error('Invalid authentication credentials');
+    }
+
     try {
       const { auth: authOptions } = this.#options;
       const authClient = new auth.JWT({
@@ -44,24 +50,26 @@ export class GDrive {
         scopes: ['https://www.googleapis.com/auth/drive'],
       });
 
-      this.#drive = new drive_v3.Drive({
-        //version: 'v3',
-        auth: authClient,
-      });
-      
+      this.#drive = new drive_v3.Drive({ auth: authClient });
       this.#lastConnect = new Date();
+
       const rootFolderData = await this.#drive.files.get({
         fileId: this.#options.root,
         fields: 'id, name, mimeType, size, modifiedTime, createdTime',
       });
+      
+      const { data } = rootFolderData;
+      if (!data.id || !data.name) {
+        throw new Error('Invalid root folder data received');
+      }
 
       this.#rootNode = new Node({
-        id: rootFolderData.data.id!,
-        name: rootFolderData.data.name!,
-        mimeType: rootFolderData.data.mimeType as MimeType,
-        size: parseInt(rootFolderData.data.size!) || 0,
-        modifiedTime: new Date(rootFolderData.data.modifiedTime!),
-        createdTime: new Date(rootFolderData.data.createdTime!),
+        id: data.id,
+        name: data.name,
+        mimeType: data.mimeType as MimeType,
+        size: parseInt(data.size ?? '0'),
+        modifiedTime: new Date(data.modifiedTime!),
+        createdTime: new Date(data.createdTime!),
       });
 
       return this.#drive;
@@ -141,31 +149,82 @@ export class GDrive {
       const fileName = path.split('/').pop()!;
       const parentNode = await this.#resolvePath(parentPath);
 
-      const res = await this.#drive!.files.create({
-        requestBody: {
-          name: fileName,
-          parents: [parentNode.id],
-        },
-        media: {
-          mimeType: 'text/plain',
-          body: content,
-        },
-        fields: 'id, name, mimeType, size, modifiedTime, createdTime',
-      });
+      // Check if file already exists
+      const existingFile = await this.#findFileInFolder(parentNode.id, fileName);
+      
+      if (existingFile) {
+        // Update existing file
+        const res = await this.#drive!.files.update({
+          fileId: existingFile.id!,
+          requestBody: {
+            name: fileName,
+          },
+          media: {
+            mimeType: 'text/plain',
+            body: content,
+          },
+          fields: 'id, name, mimeType, size, modifiedTime, createdTime',
+        });
 
-      const newNode = new Node({
-        id: res.data.id!,
-        name: res.data.name!,
-        mimeType: res.data.mimeType as MimeType,
-        size: parseInt(res.data.size!) || 0,
-        modifiedTime: new Date(res.data.modifiedTime!),
-        createdTime: new Date(res.data.createdTime!)
-      });
+        const updatedNode = new Node({
+          id: res.data.id!,
+          name: res.data.name!,
+          mimeType: res.data.mimeType as MimeType,
+          size: parseInt(res.data.size!) || 0,
+          modifiedTime: new Date(res.data.modifiedTime!),
+          createdTime: new Date(res.data.createdTime!)
+        });
+        
+        // Update the node in parent's children
+        if (parentNode.children) {
+          const index = parentNode.children.findIndex(child => child.id === existingFile.id);
+          if (index !== -1) {
+            parentNode.children[index] = updatedNode;
+          }
+        }
 
-      parentNode.addChild(newNode);
-      return newNode;
+        return updatedNode;
+      } else {
+        // Create new file
+        const res = await this.#drive!.files.create({
+          requestBody: {
+            name: fileName,
+            parents: [parentNode.id],
+          },
+          media: {
+            mimeType: 'text/plain',
+            body: content,
+          },
+          fields: 'id, name, mimeType, size, modifiedTime, createdTime',
+        });
+        
+        const newNode = new Node({
+          id: res.data.id!,
+          name: res.data.name!,
+          mimeType: res.data.mimeType as MimeType,
+          size: parseInt(res.data.size!) || 0,
+          modifiedTime: new Date(res.data.modifiedTime!),
+          createdTime: new Date(res.data.createdTime!)
+        });
+
+        parentNode.addChild(newNode);
+        return newNode;
+      }
     } catch (error) {
       throw new Error(`Failed to write file: ${(error as Error).message}`);
+    }
+  }
+
+  private async #findFileInFolder(folderId: string, fileName: string): Promise<drive_v3.Schema$File | null> {
+    try {
+      const res = await this.#drive!.files.list({
+        q: `'${folderId}' in parents and name = '${fileName}' and trashed = false`,
+        fields: 'files(id, name, mimeType, size, modifiedTime, createdTime)',
+      });
+
+      return res.data.files?.[0] || null;
+    } catch (error) {
+      throw new Error(`Failed to search for file: ${(error as Error).message}`);
     }
   }
 
@@ -325,31 +384,40 @@ export class GDrive {
   }
 
   async #resolvePath(path: string): Promise<Node> {
+    if (!this.#rootNode) {
+      throw new Error('Root node not initialized. Please connect first.');
+    }
+
     if (path === '/') {
-      return this.#rootNode!;
+      return this.#rootNode;
     }
 
     const parts = path.split('/').filter(Boolean);
-    let currentNode = this.#rootNode!;
+    let currentNode = this.#rootNode;
 
     for (const part of parts) {
+      if (!currentNode.isDirectory()) {
+        throw new Error(`${currentNode.name} is not a directory`);
+      }
+
       const childNode = currentNode.children?.find(child => child.name === part);
       if (!childNode) {
-        const res = await this.#drive!.files.list({
+        
+      const res = await this.#drive!.files.list({
           q: `'${currentNode.id}' in parents and name = '${part}' and trashed = false`,
           fields: 'files(id, name, mimeType, size, modifiedTime, createdTime)',
         });
 
-        if (res.data.files!.length === 0) {
+        if (!res.data.files?.length) {
           throw new Error(`Path not found: ${path}`);
         }
 
-        const file = res.data.files![0];
+        const file = res.data.files[0];
         const newNode = new Node({
           id: file.id!,
           name: file.name!,
           mimeType: file.mimeType as MimeType,
-          size: parseInt(file.size!) || 0,
+          size: parseInt(file.size ?? '0'),
           modifiedTime: new Date(file.modifiedTime!),
           createdTime: new Date(file.createdTime!)
         });
