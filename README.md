@@ -43,7 +43,7 @@ Then, create an instance of GDriveFS with your Google Drive authentication detai
 
 ```javascript
 const fsGDrive = new GDrive({
-  folderId: 'your-root-folder-id',
+  root: 'your-root-folder-id',
   auth: {
     email: 'your-service-account-email@example.com',
     privateKey: 'your-private-key',

@@ -1,7 +1,7 @@
 import {GDrive} from "fs-gdrive";
 
 const gdrive = new GDrive({
-  folderId: process.env.GD_FOLDER_ID, // folderId
+  root: process.env.GD_FOLDER_ID, // folderId
   auth: {
     email: process.env.GD_EMAIL, // JWT email
     privateKey: process.env.GD_PRIVATE_KEY.replace(/\\n/g, '\n'), // JWT private key
